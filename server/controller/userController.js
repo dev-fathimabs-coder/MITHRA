@@ -48,27 +48,27 @@ let getUserById = async (req, res) => {
 
 
 let updateUser = async (req, res) => {
-    console.log(req.params.id);
+    // console.log(req.params.id);
 
     let userId = req.params.id
     try {
         if (!userId) {
             return res.status(404).json({ message: "User not found" });
         }
-        let updateData = await User.findOne({ _id: userId })
+        let { username, email } = req.body
+        updateData = await User.findByIdAndUpdate(userId,
+            { username, email },
+            { new: true, runValidators: true }
+        )
 
-        console.log(updateData);
-        
         if (!updateData) {
             return res.status(404).json({ message: "The User Doesn't exist" });
         }
-        let { email, username } = req.body
+        
+        res.status(200).json({
+            message: "User updated successfully",data:updateData
+        });
 
-        if (email) updateData.email = email
-
-        if (username) updateData.username = username
-        await userData.save();
-        res.json({ message: "Data Updated successfully" });
     } catch (error) {
         res.status(400).json({ error: "Invalid ID" });
     }
@@ -77,7 +77,7 @@ let updateUser = async (req, res) => {
 let deleteUser = async (req, res) => {
 
     try {
-        let deleteData = await Users.findByIdAndDelete({ _id: deleteId });
+        let deleteData = await User.findByIdAndDelete({ _id: deleteId });
         if (!deleteData) {
             return res.status(404).json({ message: "User Not found" });
         }
@@ -87,6 +87,8 @@ let deleteUser = async (req, res) => {
         res.status(400).json({ error: "Invalid ID" });
     }
 }
+
+
 
 
 module.exports = { CreateUser, getUserById, updateUser, deleteUser }
